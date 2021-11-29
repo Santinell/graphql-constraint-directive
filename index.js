@@ -60,13 +60,21 @@ function constraintDirective () {
   }
 
   return schema => mapSchema(schema, {
+    [MapperKind.ARGUMENT]: fieldConfig => {
+      const directives = getDirectives(schema, fieldConfig)
+      const directiveArgumentMap = directives.constraint
+
+      if (directiveArgumentMap) {
+        wrapType(fieldConfig, directiveArgumentMap)
+        return fieldConfig
+      }
+    },
     [MapperKind.FIELD]: (fieldConfig) => {
       const directives = getDirectives(schema, fieldConfig)
       const directiveArgumentMap = directives.constraint
 
       if (directiveArgumentMap) {
         wrapType(fieldConfig, directiveArgumentMap)
-
         return fieldConfig
       }
     }
@@ -92,6 +100,6 @@ const constraintDirectiveTypeDefs = `
     exclusiveMax: Int
     multipleOf: Int
     uniqueTypeName: String
-  ) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION`
+  ) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION | ARGUMENT_DEFINITION`
 
 module.exports = { constraintDirective, constraintDirectiveTypeDefs }
